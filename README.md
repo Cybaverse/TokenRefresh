@@ -32,13 +32,13 @@ These settings are by default set up for OAuth, however they can be tweaked for 
 ![image](https://user-images.githubusercontent.com/110976090/188850888-f4063f22-7a6a-4360-aa20-efc31ae38cdd.png)
 
 
-- Enable Debugging  - gives you a much more verbose output so you can troubleshoot regex queries or error messages connecting :
+- Enable Debugging  - gives you a much more verbose output so you can troubleshoot regex queries or error messages connecting
 - Clear logs - clear the logs! 
 
 ![image](https://user-images.githubusercontent.com/110976090/188851018-66795705-8bbe-4bd8-8725-c743547738f4.png)
 
 - Start Token Refresher – Start the extension
-- In Scope Only : off - restrict actions to only in scope URL
+- In Scope Only : OFF - restrict actions to only in scope URL
 - Refresh Token – Manually obtain a new token
 
 
