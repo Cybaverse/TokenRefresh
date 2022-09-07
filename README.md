@@ -132,7 +132,8 @@ Url Requested :http://127.0.0.1:80/api/v2/notes
 URL is in scope 
 Processing Message 
 Response received
-Bearer token is valid```
+Bearer token is valid
+```
 Now it has a new valid token, when the request is made, it is automatically updated and is successful
 
 ![image](https://user-images.githubusercontent.com/110976090/188866593-3332c5db-f7ac-45f2-809f-e7f28904728a.png)
