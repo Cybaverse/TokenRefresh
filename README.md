@@ -42,7 +42,7 @@ These settings are by default set up for OAuth, however they can be tweaked for 
 - Refresh Token – Manually obtain a new token
 
 
-#Walkthrough using DVWS
+# Walkthrough using DVWS
 
 ![image](https://user-images.githubusercontent.com/110976090/188860063-656f6e37-3179-4678-b0c0-8412b3e69fcf.png)
 
