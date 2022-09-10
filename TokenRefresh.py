@@ -2,21 +2,17 @@
 #Also a big shout out to Parsia (@CryptoGangsta) for their Swing in Python Burp Extensions blog
 #(https://parsiya.net/blog/2019-11-04-swing-in-python-burp-extensions-part-1/)
 import os
-
+import threading
 from java.lang import Short
 from javax.swing import (JScrollPane, JPanel, JTextField, JLabel, JToggleButton, JCheckBox, GroupLayout, JFrame, JTextArea, JButton, JInternalFrame,ImageIcon, LayoutStyle)
 from burp import IBurpExtender
 from burp import IHttpListener
 from burp import ISessionHandlingAction
 from burp import ITab
-
-
 import re
-import urllib2
+import urlparse
 import base64
-#To check if still needed
-import ssl
-import httplib
+
 
 class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
 
@@ -32,11 +28,11 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
     # Variables to hold the tokens found so that it can be inserted in the next request
     discoveredBearerToken = ''
 
-    def registerExtenderCallbacks(self, callbacks):
 
+    def registerExtenderCallbacks(self, callbacks):
+        cb(callbacks)
         # Keep a reference to our callbacks object
         self.callbacks = callbacks
-
         #Define items
         self.BaseVariables = JPanel()
         self.AccessToken = JLabel()
@@ -68,7 +64,7 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         self.jLabel1 = JLabel()
         self.jScrollPane4 = JScrollPane()
         self.jTextArea2 = JTextArea()
-
+        self.performingrefresh = False
 
 # Image
         LogoExists = os.path.isfile("Logo.jpg")
@@ -145,7 +141,8 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         #Set text in items
         self.AccessToken.setText("Access Token Regex")
         self.ErrorRegex.setText("Bearer Token Error")
-        self.AccessTokenValue.setText("access_token\\\"\\:\\\"(.*?)\\\"")
+        #self.AccessTokenValue.setText("access_token\\\"\\:\\\"(.*?)\\\"")
+        self.AccessTokenValue.setText("token\\\"\\:\\\"(.*?)\\\"")
         self.BearerTokenValue.setText("Unauthorized")
         self.CurrentBearerTokenValue.setColumns(20)
         self.CurrentBearerTokenValue.setRows(5)
@@ -153,7 +150,8 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         self.CurrentBearerTokenValue.setEditable(False)
         self.BearerTokenPaneName.setText("Current Bearer Token Value")
         self.AuthEndPoint.setText("Authorisation Endpoint")
-        self.AuthEndPointValue.setText("https://host.com/oauth")
+        #self.AuthEndPointValue.setText("https://host.com/oauth/login")
+        self.AuthEndPointValue.setText("http://127.0.0.1/api/v2/login")
         self.ContentType.setText("Content Type")
         self.UserAgent.setText("User Agent")
         self.UserAgentValue.setText("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
@@ -283,8 +281,9 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
 
         self.AuthDataValue.setColumns(20)
         self.AuthDataValue.setRows(5)
+        #self.AuthDataValue.setText("grant_type=client_credentials&client_id=CLIENTID&client_secret=CLIENTSECRET&scope=SCOPE&audience=AUDIENCE")
         self.AuthDataValue.setText(
-            "grant_type=client_credentials&client_id=CLIENTID&client_secret=CLIENTSECRET&scope=SCOPE&audience=AUDIENCE")
+            "username=user&password=user")
         self.jScrollPane2.setViewportView(self.AuthDataValue)
 
         VariablesToSendLayout =  GroupLayout(self.VariablesToSend)
@@ -446,25 +445,45 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
     def processResponse(self, currentMessage):
         if self.DebugEnabled.isSelected():
             self.LoggingWindowPane.append("Response received\n")
+            if self.performingrefresh == True :
+                self.LoggingWindowPane.append("Performing Token Refresh\n")
+            else :
+                self.LoggingWindowPane.append("Not a token refresh \n")
         response = currentMessage.getResponse()
         parsedResponse = self._helpers.analyzeResponse(response)
         respBody = self._helpers.bytesToString(response[parsedResponse.getBodyOffset():])
+        if self.DebugEnabled.isSelected():
+            updatelog = "Response body received : " + respBody + "\n"
+            self.LoggingWindowPane.append(updatelog)
         #Search body using regex from Bearer Token Error to see if token is valid
-        BearerErrorRegex = re.compile(self.BearerTokenValue.getText())
-        token = BearerErrorRegex.search(respBody)
-        if token is None:
-            if self.DebugEnabled.isSelected():
-                self.LoggingWindowPane.append("Bearer token is valid\n")
+        if self.performingrefresh == False :
+            BearerErrorRegex = re.compile(self.BearerTokenValue.getText())
+            token = BearerErrorRegex.search(respBody)
+            if token is None:
+                if self.DebugEnabled.isSelected():
+                    self.LoggingWindowPane.append("Bearer token is valid\n")
+            else:
+                if self.DebugEnabled.isSelected():
+                    self.LoggingWindowPane.append("Bearer token expired - obtaining new one\n")
+                self.BearerRefresh()
+                if self.DebugEnabled.isSelected():
+                    if BurpExtender.discoveredBearerToken != '':
+                        updatelog = "New Bearer Token Acquired : ..."+BurpExtender.discoveredBearerToken+"...\n"
+                        self.LoggingWindowPane.append(updatelog)
+                    else:
+                        self.LoggingWindowPane.append("[!] No matching token found in response. Enable logging to view full response and check your regex\n")
         else:
-            if self.DebugEnabled.isSelected():
-                self.LoggingWindowPane.append("Bearer token expired - obtaining new one\n")
-            self.BearerRefresh()
-            if self.DebugEnabled.isSelected():
-                if BurpExtender.discoveredBearerToken != '':
-                    updatelog = "New Bearer Token Acquired : ..."+BurpExtender.discoveredBearerToken+"...\n"
+            AccessTokenRegex = re.compile(self.AccessTokenValue.getText())
+            token = AccessTokenRegex.search(respBody)
+            if token is None:
+                self.LoggingWindowPane.append("[!] Unable to extract token - no regex match\n")
+            else:
+                BurpExtender.discoveredBearerToken = token.group(1)
+                self.CurrentBearerTokenValue.text = (BurpExtender.discoveredBearerToken)
+                if self.DebugEnabled.isSelected():
+                    updatelog = "Discovered response : "+str(token.group(0))+"\n" + "Extracted Token : "+BurpExtender.discoveredBearerToken+"\n"
                     self.LoggingWindowPane.append(updatelog)
-                else:
-                    self.LoggingWindowPane.append("[!] No matching token found in response. Enable logging to view full response and check your regex\n")
+        self.performingrefresh = False
 
     def processRequest(self, currentMessage):
         request = currentMessage.getRequest()
@@ -507,47 +526,77 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
     def BearerRefresh(self):
         host = self.AuthEndPointValue.getText()
         if self.DebugEnabled.isSelected():
-            updatelog = "Attempting to reach "+host+" to re-authenticate\n\n"
+            updatelog = "Attempting to reach " + host + " to re-authenticate\n\n"
             self.LoggingWindowPane.append(updatelog)
-        req = urllib2.Request(host)
-        UserAgent = self.UserAgentValue.getText()
-        req.add_header('User-Agent',UserAgent)
+
+        path = urlparse.urlparse(host).path
+        hostname = urlparse.urlparse(host).hostname
+        scheme = urlparse.urlparse(host).scheme
+        port = urlparse.urlparse(host).port
+
+        headers = []
+        headers.append("POST " + path + " HTTP/1.1")
+        headers.append("Host: " + hostname)
+        headers.append("User-Agent: " + self.UserAgentValue.getText())
         if self.ContentTypeEnabled.isSelected():
             ContentType = self.ContentTypeValue.getText()
-            req.add_header('Content-Type', ContentType)
+            headers.append("Content-Type: " + ContentType)
+        else:
+            headers.append("Content-Type: application/x-www-form-urlencoded")
+        headers.append("Connection: close")
         data = self.AuthDataValue.getText()
         if not self.IsB64.isSelected():
             pass
         else:
             data = base64.b64decode(data)
-        req.add_data(data)
+        body = self._helpers.stringToBytes(data)
+        self.messagebody = self._helpers.buildHttpMessage(headers, body)
+        #newRequestMessage = self._helpers.buildHttpMessage(headers, self.messagebody)
         if self.DebugEnabled.isSelected():
-            updatelog = "URL: " + str(host) + "\n"
-            #updatelog = updatelog + "Method: " + str(req.method) + "\n"
-            updatelog = updatelog+"Headers sent: "+str(req.headers)+"\n"
-            updatelog = updatelog + "Body sent: " + str(data) + "\n\n"
-            #updatelog = "Data being sent : "+str(data)+"\n"
-            self.LoggingWindowPane.append(updatelog)
-        try:
-            resp = urllib2.urlopen(req) #, context=ssl._create_unverified_context())
-        except urllib2.HTTPError as e:
-            updatelog = "[!] RESPONSE HTTP ERROR "+str(e)+" attempting to reach "+str(host)+"\n"+"Consider enabling debugging to troubleshoot\n"
-            self.LoggingWindowPane.append(updatelog)
+            self.LoggingWindowPane.append("Message built : \n")
+            self.LoggingWindowPane.append(data)
+        if scheme == "https" :
+            ssl = True
         else:
-            content = resp.read()
-            if self.DebugEnabled.isSelected():
-                updatelog = "Content received : "+str(content)+"\n"
-                self.LoggingWindowPane.append(updatelog)
-            #AccessTokenRegex = re.compile(r"access_token\"\:\"(.*?)\"")
-            AccessTokenRegex = re.compile(self.AccessTokenValue.getText())
-            token = AccessTokenRegex.search(content)
-            if token is None:
-                self.LoggingWindowPane.append("[!] Unable to extract token - no regex match\n")
-                #BurpExtender.discoveredBearerToken = "ThisIsATestToken"
-                #self.CurrentBearerTokenValue.text = (BurpExtender.discoveredBearerToken)
-            else:
-                BurpExtender.discoveredBearerToken = token.group(1)
-                self.CurrentBearerTokenValue.text = (BurpExtender.discoveredBearerToken)
-            if self.DebugEnabled.isSelected():
-                updatelog = "Discovered response : "+str(token.group(0))+"\n" + "Extracted Token : "+BurpExtender.discoveredBearerToken+"\n"
-                self.LoggingWindowPane.append(updatelog)
+            ssl = False
+        if port == None :
+            if ssl == True :
+                port = 443
+            else :
+                port = 80
+        if self.DebugEnabled.isSelected():
+            updatelog = "Hostname : " + str(hostname) + ", scheme : " + str(scheme) + ", port : " + str(port) + "\n"
+            self.LoggingWindowPane.append(updatelog)
+        service = self._helpers.buildHttpService(hostname, port, ssl)
+        if self.DebugEnabled.isSelected():
+            self.LoggingWindowPane.append("Service Built \n")
+            self.LoggingWindowPane.append("Passing to thread \n")
+        self.performingrefresh = True
+        thread1 = thread( service, self.messagebody)
+        thread1.start()
+
+
+class cb():
+
+    callbacks = None
+
+    def __init__(self, callbacks):
+        cb.callbacks = callbacks
+        cb.helpers = callbacks.getHelpers()
+
+class thread(threading.Thread):
+    def __init__(self, service, message):
+        threading.Thread.__init__(self)
+        self.service=service
+        self.message=message
+
+    def run(self):
+        try:
+            #print "Making request \n"
+            requested = cb.callbacks.makeHttpRequest(self.service, self.message)
+        except Exception as e:
+            print e
+        response = cb.helpers.bytesToString(requested.getResponse())
+        info = cb.helpers.analyzeResponse(response)
+        body = response[info.getBodyOffset():]
+        return
