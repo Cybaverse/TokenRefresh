@@ -141,8 +141,8 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         #Set text in items
         self.AccessToken.setText("Access Token Regex")
         self.ErrorRegex.setText("Bearer Token Error")
-        #self.AccessTokenValue.setText("access_token\\\"\\:\\\"(.*?)\\\"")
-        self.AccessTokenValue.setText("token\\\"\\:\\\"(.*?)\\\"")
+        self.AccessTokenValue.setText("access_token\\\"\\:\\\"(.*?)\\\"")
+        #self.AccessTokenValue.setText("token\\\"\\:\\\"(.*?)\\\"")
         self.BearerTokenValue.setText("Unauthorized")
         self.CurrentBearerTokenValue.setColumns(20)
         self.CurrentBearerTokenValue.setRows(5)
@@ -150,8 +150,8 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         self.CurrentBearerTokenValue.setEditable(False)
         self.BearerTokenPaneName.setText("Current Bearer Token Value")
         self.AuthEndPoint.setText("Authorisation Endpoint")
-        #self.AuthEndPointValue.setText("https://host.com/oauth/login")
-        self.AuthEndPointValue.setText("http://127.0.0.1/api/v2/login")
+        self.AuthEndPointValue.setText("https://host.com/oauth/login")
+        #self.AuthEndPointValue.setText("http://127.0.0.1/api/v2/login")
         self.ContentType.setText("Content Type")
         self.UserAgent.setText("User Agent")
         self.UserAgentValue.setText("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
@@ -281,8 +281,8 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
 
         self.AuthDataValue.setColumns(20)
         self.AuthDataValue.setRows(5)
-        #self.AuthDataValue.setText("grant_type=client_credentials&client_id=CLIENTID&client_secret=CLIENTSECRET&scope=SCOPE&audience=AUDIENCE")
-        self.AuthDataValue.setText(
+        self.AuthDataValue.setText("grant_type=client_credentials&client_id=CLIENTID&client_secret=CLIENTSECRET&scope=SCOPE&audience=AUDIENCE")
+        #self.AuthDataValue.setText(
             "username=user&password=user")
         self.jScrollPane2.setViewportView(self.AuthDataValue)
 
@@ -425,7 +425,7 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         #if toolFlag != self._callbacks.TOOL_PROXY:
         if self.DebugEnabled.isSelected():
             url = str(currentMessage.getUrl())
-            self.LoggingWindowPane.append("Url Requested :")
+            self.LoggingWindowPane.append("URL Requested :")
             self.LoggingWindowPane.append(url)
             self.LoggingWindowPane.append("\n")
             if self._callbacks.isInScope(currentMessage.getUrl()):
