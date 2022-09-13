@@ -138,6 +138,10 @@ Now it has a new valid token, when the request is made, it is automatically upda
 
 ![image](https://user-images.githubusercontent.com/110976090/188866593-3332c5db-f7ac-45f2-809f-e7f28904728a.png)
 
+There is a quick use tutorial videos available here.
+
+[![IMAGE ALT TEXT](https://i9.ytimg.com/vi_webp/YOhDuEe2Wgo/mqdefault.webp?v=6320861c&sqp=CNiLgpkG&rs=AOn4CLB4f_r0iDI8cuNDlyrcTgK3N3lg8Q)](https://www.youtube.com/watch?v=YOhDuEe2Wgo "Bearer Token Refresh Quick Use Guide")
+
 
 
 
