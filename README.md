@@ -9,7 +9,7 @@ The extension checks the response for an ‘expired token’ message and if pres
 
 There is a quick use tutorial video available here.
 
-[![IMAGE ALT TEXT](https://i9.ytimg.com/vi_webp/YOhDuEe2Wgo/mqdefault.webp?v=6320949a&sqp=COingpkG&rs=AOn4CLCLeazNusSlxFnMtEeIwBcZC2EO7g =250x250)](https://www.youtube.com/watch?v=YOhDuEe2Wgo "Bearer Token Refresh Quick Use Guide")
+[![IMAGE ALT TEXT](https://i9.ytimg.com/vi_webp/YOhDuEe2Wgo/mqdefault.webp?v=6320949a&sqp=COingpkG&rs=AOn4CLCLeazNusSlxFnMtEeIwBcZC2EO7g width="400" height="400")](https://www.youtube.com/watch?v=YOhDuEe2Wgo "Bearer Token Refresh Quick Use Guide")
 
 # Settings
 
