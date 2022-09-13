@@ -7,6 +7,10 @@ Clean, simple and easy to use tool to manage short validity authorisation tokens
 
 The extension checks the response for an ‘expired token’ message and if present in the response will reach out to an endpoint and request a new token. All subsequent requests will have the new token automatically used instead of the old expired token. Populate the required fields (shown below) and click on ‘Start Token Refresher’ – that’s it!
 
+There is a quick use tutorial video available here.
+
+[![IMAGE ALT TEXT](https://i9.ytimg.com/vi_webp/YOhDuEe2Wgo/mqdefault.webp?v=6320949a&sqp=COingpkG&rs=AOn4CLCLeazNusSlxFnMtEeIwBcZC2EO7g)](https://www.youtube.com/watch?v=YOhDuEe2Wgo "Bearer Token Refresh Quick Use Guide")
+
 # Settings
 
 ![image](https://user-images.githubusercontent.com/110976090/188850663-65f4f1f7-c2f8-49c3-a89f-a74fb323483d.png)
@@ -137,10 +141,6 @@ Bearer token is valid
 Now it has a new valid token, when the request is made, it is automatically updated and is successful.
 
 ![image](https://user-images.githubusercontent.com/110976090/188866593-3332c5db-f7ac-45f2-809f-e7f28904728a.png)
-
-There is a quick use tutorial video available here.
-
-[![IMAGE ALT TEXT](https://i9.ytimg.com/vi_webp/YOhDuEe2Wgo/mqdefault.webp?v=6320861c&sqp=CNiLgpkG&rs=AOn4CLB4f_r0iDI8cuNDlyrcTgK3N3lg8Q)](https://www.youtube.com/watch?v=YOhDuEe2Wgo "Bearer Token Refresh Quick Use Guide")
 
 
 
