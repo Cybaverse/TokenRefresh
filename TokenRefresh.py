@@ -593,7 +593,7 @@ class thread(threading.Thread):
             #print "Making request \n"
             requested = cb.callbacks.makeHttpRequest(self.service, self.message)
         except Exception as e:
-            print e
+            print (e)
         response = cb.helpers.bytesToString(requested.getResponse())
         info = cb.helpers.analyzeResponse(response)
         body = response[info.getBodyOffset():]
