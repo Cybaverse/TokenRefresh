@@ -282,8 +282,6 @@ class BurpExtender(IBurpExtender, IHttpListener, ISessionHandlingAction, ITab):
         self.AuthDataValue.setColumns(20)
         self.AuthDataValue.setRows(5)
         self.AuthDataValue.setText("grant_type=client_credentials&client_id=CLIENTID&client_secret=CLIENTSECRET&scope=SCOPE&audience=AUDIENCE")
-        #self.AuthDataValue.setText(
-            "username=user&password=user")
         self.jScrollPane2.setViewportView(self.AuthDataValue)
 
         VariablesToSendLayout =  GroupLayout(self.VariablesToSend)
